@@ -1,0 +1,487 @@
+Practical 1 – Python RSA (Public & Private Key)
+
+Generate public and private keys using Python RSA and test encryption/decryption.
+
+pip install pycryptodome
+
+pract1.py:
+
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+key = RSA.generate(2048)
+private_key = key
+public_key = key.publickey()
+encryptor = PKCS1_OAEP.new(public_key)
+decryptor = PKCS1_OAEP.new(private_key)
+message = b'hello RSA'
+encrypted = encryptor.encrypt(message)
+print("Encrypted:", encrypted)
+decrypted = decryptor.decrypt(encrypted)
+print("Decrypted:", decrypted)
+
+
+A SIMPLE CLIENT CLASS THAT GENERATES THE PUBLIC KEY LEDGER AND PRIVATE KEY BY
+USING THE BUILT-IN PYTHON RSA ALGORIHTM AND TEST IT:
+
+import binascii
+import Crypto
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
+class client:
+  def __init__(self):
+    random = Crypto.Random.new().read
+    self._private_key = RSA.generate(1024, random)
+    self._public_key = self._private_key.publickey()
+    self._signer = PKCS1_v1_5.new(self._private_key)
+  @property
+  def identity(self):
+    return binascii.hexlify(
+    self._public_key.exportKey(format='DER')
+    ).decode('ascii')
+TYIT = client()
+print("\npublic key:", TYIT.identity)
+
+
+Normal solving:
+
+P = 3
+Q= 11
+N = P*Q
+Phi = (P-1) * (Q-1)
+E = 7
+D = 3
+def encryption(m):
+  return (m**E) % N
+def decryption(c):
+  return (c**D) % N
+message = 4
+print("Original Message:", message)
+encrypted = encryption(message)
+print("Encrypted Message:", encrypted)
+decrypted = decryption(encrypted)
+print("Decrypted Message:", decrypted)
+---------------------------------------------------------
+
+Practical 2 – CoinMarketCap Exchange Rate
+
+Find cryptocurrency exchange rate.
+
+Open website
+https://coinmarketcap.com
+
+Search Bitcoin (BTC)
+Note the values:
+Day 1 Price = P₁
+Today Price = Pₙ
+
+Calculate Final Change
+Formula
+Final Change (%) = (Pn − P1) / P1 × 100
+
+Example from document:
+
+P1 = 91,399.17
+Pn = 66,223.22
+Final Change = (66,223.22 − 91,399.17) / 91,399.17 × 100
+             = −27.55%
+
+Calculate Log Return
+
+R = ln(Pn / P1)
+R = ln(66,223.22 / 91,399.17)
+R = −0.322
+
+Conclusion: Bitcoin decreased by 27.55%.
+-----------------------------------------------------------
+
+Practical 3 – Calculate Number of Bitcoins
+
+Calculate BTC based on investment.
+
+Formula:
+BTC Amount = Investment / Price of 1 BTC
+
+Python Code
+investment = float(input("Enter investment amount: "))
+btc_price = float(input("Enter price of BTC: "))
+
+btc_amount = investment / btc_price
+
+print("You will get", btc_amount, "BTC")
+
+Example
+Investment = 1000
+BTC Price = 50000
+
+BTC = 1000 / 50000
+BTC = 0.02
+
+This calculates how many bitcoins can be purchased.
+------------------------------------------------------------
+
+practical 4: CREATE A TRANSACTION CLASS TO SEND AND RECEIVE MONEY AND TEST IT
+
+practice.py
+class bank:
+  def __init__(self):
+    self.balance = 0
+    print("shelly\n")
+    print("Account created with balance 0")
+  def deposit(self):
+    amount = float(input("Enter amount to deposit: "))
+    self.balance = self.balance + amount
+    print("The deposit is successful and the balance is %f" %self.balance)
+  def withdraw(self):
+    amount = float(input("Enter amount to withdraw: "))
+    if self.balance >= amount:
+      self.balance = self.balance - amount
+      print("The withdrawal is successful and the balance is %f" %self.balance)
+    else:
+      print("Insufficient balance")
+  def enquiry(self):
+    print("The balance is %f" %self.balance)
+account = bank()
+account.deposit()
+account.withdraw()
+account.enquiry()
+----------------------------------------------------------------
+
+Practical 5 – MetaMask + Ganache Transaction
+
+Open Ganache.
+Copy RPC Server address
+
+Example: http://127.0.0.1:7545
+
+Open MetaMask
+click on 3 lines > go to network > custom network
+Network Name : Loaclhost 8545
+RPC URL : http://127.0.0.1:7545
+Chain ID : 1337
+Currency : ETH
+
+top left corner > account
+add wallet > import an account
+
+Go to Ganache
+Click key icon
+Copy private key
+
+In MetaMask
+Import Account → Paste private key
+Now account with 100 ETH appears.
+Click Send > ETH
+Paste receiver address
+Enter amount (eg: 2)
+Confirm
+
+Transaction appears in Ganache
+---------------------------------------------------------------
+
+Practical 6 – Remix IDE Smart Contract(deposit & withdraw)
+
+Open
+https://remix.ethereum.org
+
+Create new workspace > blank
+Create file> tytokens.sol
+
+pragma solidity ^0.8.31;
+
+contract tytoken{
+    string public name = "tytoken";
+    string public symbol = "TYIT";
+    uint256 public totalsupply;
+
+    mapping (address => uint256) public balanceOf;
+
+    constructor(uint256 initialsupply) {
+        totalsupply = initialsupply;
+        balanceOf[msg.sender] = initialsupply;
+    }
+
+    function transfer(address toWhom, uint256 value) public returns(bool success){
+        require(balanceOf[msg.sender] >= value, "insufficient balance");
+        balanceOf[msg.sender] -= value;
+        balanceOf[toWhom] += value;
+        return true;
+    }
+}
+
+
+Solidity Compiler → Compile
+left panel >Deploy & Run 
+account > choose 1st account
+scroll down to deploy
+enter initialsupply (eg: 10000) 
+click on deploy
+
+copy address of 2nd account
+scroll down 
+go to deployed contracts:
+expand transfer:
+towhom: paste address of 2nd account
+value: 5000
+DONT FORGET TO CHOOSE THE 1ST ACCOUNT BEFORE TRANSACT
+click on transact
+balanceof: paste address of 1st account
+click on balanceof
+
+----------------------------------------------------------------------------
+practical 7:
+
+AIM : Create a basic DEFI (decentraised Financial System)
+
+create a file in remix
+
+pract.sol:
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+
+    constructor() ERC20("MyToken", "MTK") {
+        _mint(msg.sender, 1000000 * 10 ** decimals());
+    }
+}
+click on compile 
+go to deploy & run
+click on 1st account > deploy
+After deployment:
+
+paste 1st account address > at address
+
+go to deployed contracts:
+Transform:
+from: 1st acc
+to: 2nd acc
+value: 5000
+click on transact
+
+
+Staking (DeFi Feature):
+Another smart contract is created for staking tokens.
+
+practice.sol:
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract SimpleStaking {
+
+    IERC20 public token;
+    mapping(address => uint256) public stakes;
+
+    constructor(address _token) {
+        token = IERC20(_token);
+    }
+
+    function stake(uint256 amount) external {
+        require(amount > 0, "Zero amount");
+        token.transferFrom(msg.sender, address(this), amount);
+        stakes[msg.sender] += amount;
+    }
+
+    function unstake(uint256 amount) external {
+        require(stakes[msg.sender] >= amount, "Not enough stake");
+        stakes[msg.sender] -= amount;
+        token.transfer(msg.sender, amount);
+    }
+
+}
+
+click on compile 
+go to deploy & run
+click on 1st account > deploy
+After deployment:
+
+Scroll to Deployed Contracts.
+Click:
+stakes:
+paste 1st accounts address
+
+then paste on "at address"
+then click on at address
+
+then go to deployed contracts open:
+paste address on stakes > and click on stakes
+------------------------------------------------------------------------------
+
+practical 8: world cases
+
+attendance:
+pragma solidity ^0.8.9;
+
+contract Attendance {
+// Stores roll number presence
+    mapping(uint256 => bool) public isPresent;
+// Constructor initializes roll numbers
+    constructor(uint256[] memory rollno) {
+        for (uint256 i = 0; i < rollno.length; i++) {
+            isPresent[rollno[i]] = true;
+        }
+    }
+// Check attendance
+    function attend(uint256 roll) public view returns (bool) {
+    return isPresent[roll];
+    }
+}
+
+compile > deploy & run
+scroll down to deploy
+enter initialsupply (eg: [1,2,3]) 
+click on deploy
+
+go to deployed contractes:
+attend: 2 (o/p: true)
+ispresent: 5 (o/p: false)
+
+
+donation:
+pragma solidity ^0.8.9;
+
+contract Donation {
+    address public owner;
+    mapping(address => uint) public balances;
+    event Donated (address indexed from, uint256 amount);
+    constructor(){
+        owner = msg.sender;
+    }
+    function donate() public payable {
+        require(msg.value > 0, "Donation amount must be greater than zero");
+        balances[msg.sender] += msg.value;
+        emit Donated(msg.sender, msg.value);
+    }
+    function getDonationBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+}
+compile > deploy & run:
+directly click deploy 
+then change the value to 1 in "value"
+scroll down to deployed contracts:
+click on deploy
+-------------------------------------------------------------------------------
+
+Practical 9 (Metamask — Ganache — Truffle)
+
+Open Ganache.
+Copy RPC Server address
+
+Example: http://127.0.0.1:7545
+
+Open MetaMask
+click on 3 lines > go to network > custom network
+Network Name : Loaclhost 8545
+RPC URL : http://127.0.0.1:7545
+Chain ID : 1337
+Currency : ETH
+
+top left corner > account
+add wallet > import an account
+
+Go to Ganache
+Click key icon
+Copy private key
+
+In MetaMask
+Import Account → Paste private key
+
+create a folder on desktop > "bkc node"
+go to cmg in this path
+npm init -y
+npm install -g truffle
+npm install truffle lite-server
+npx truffle init
+
+open bkc folder on vs code:
+in contract folder > add add.sol:
+
+pragma solidity ^0.8.0;
+contract Add{
+  function add(uint a, uint b)
+  public pure returns(uint){
+  return a+b;
+  }
+}
+
+in migrations folder > add "1_deploye.js":
+const Add = artifacts.require("Add");
+module.exports = function (deployer) {
+  deployer.deploy(Add);
+}
+
+in truffle.config file > search for "development"
+remove comments for development
+port: 7545
+
+search for compilers: (change version to):
+version: 0.8.0
+
+go to cmd again:
+npx truffle compile -all
+npx truffle migrate --reset
+
+go to metamask > token 
+see if deducted
+--------------------------------------------------------------------
+practical 10: (Metamask — Ganache — Trufle — Frontend)
+
+do the whole practical 9
+then go to cmd in proj folder:
+npm install web3
+
+go to vs code:
+add index.html:
+<!doctype html>
+<html>
+  <head>
+    <title>DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  </head>
+  <body>
+    <h2>Add Two Numbers</h2>
+    <input id="num1" placeholder="Number 1" />
+    <input id="num2" placeholder="Number 2" />
+    <button onclick="add()">Add</button>
+    <h3 id="result"></h3>
+    <script>
+      let web3;
+      let contract;
+      const contractAddress = "PASTE_DEPLOYED_CONTRACT_ADDRESS";
+      const abi = [
+        {
+          inputs: [
+            { internalType: "uint256", name: "a", type: "uint256" },
+            { internalType: "uint256", name: "b", type: "uint256" },
+          ],
+          name: "add",
+          outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+          stateMutability: "pure",
+          type: "function",
+        },
+      ];
+      window.onload = async () => {
+        if (window.ethereum) {
+          web3 = new Web3(window.ethereum);
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          contract = new web3.eth.Contract(abi, contractAddress);
+        }
+      };
+      async function add() {
+        let a = document.getElementById("num1").value;
+        let b = document.getElementById("num2").value;
+        let result = await contract.methods.add(a, b).call();
+        document.getElementById("result").innerHTML = "Result = " + result;
+      }
+    </script>
+  </body>
+</html>
+PASTE_DEPLOYED_CONTRACT_ADDRESS in index.html
+paste contract address shown in migrate --reset
+
+go to cmd:
+truffle migrate --reset
+open index.html from folder
