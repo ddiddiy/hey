@@ -270,6 +270,7 @@ add player1 as target
 click on bake > run
 -----------------------------------------------------------------------
 PRACTICAL 9: ANIMATIONS
+W/0 CODE:
 
 open maximo
 
@@ -287,3 +288,22 @@ enable loop time (same for run & walk)
 
 go to obj > add component > animator controller
 drop animator component to controller
+
+WITH CODE:
+continue with pract 9A
+create 2nd animator controller > animator2
+
+make transactions from breathe > walk & walk > breathe
+disable exit time from breather > walk
+condition: walk = true
+disable exit time walk > breath:
+condition: walk = false
+
+make transactions from run > breathe & breathe > run
+disable exit time from run > breathe
+condition: run = false
+disable exit time breathe > run:
+condition: run = true
+
+create script "animation":
+attach script & animator2 to obj
