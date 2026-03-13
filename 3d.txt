@@ -1,0 +1,289 @@
+PRACTICAL 7: ANGLE & RANGE CHECKER
+
+create a 3d ibj > quare(player)
+create another obj sphere(enemy)
+
+add script rangechecker:
+using UnityEngine;
+
+public class RangeChecker : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float range = 5f;
+    [SerializeField] float moveSpeed = 5f;
+    bool targetWasInRange = false;
+    void Update()
+    {
+        HandleMovement();
+        HandleRangeCheck();
+        HandleAngleCheck();
+    }
+    void HandleMovement()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+
+        Vector3 direction = new Vector3(moveX, 0f, moveZ);
+        transform.Translate(direction * moveSpeed * Time.deltaTime, Space.World);
+    }
+    void HandleRangeCheck()
+    {
+        float distance = Vector3.Distance(transform.position, target.position);
+
+        if (distance <= range && !targetWasInRange)
+        {
+            Debug.Log("Player entered target range");
+            targetWasInRange = true;
+        }
+        else if (distance > range && targetWasInRange)
+        {
+            Debug.Log("Player exited target range");
+            targetWasInRange = false;
+        }
+    }
+
+    void HandleAngleCheck()
+    {
+        Vector3 directionToTarget = target.position - transform.position;
+        if (directionToTarget.sqrMagnitude < 0.0001f)
+            return;
+        directionToTarget.Normalize();
+        float dot = Vector3.Dot(transform.forward, directionToTarget);
+        dot = Mathf.Clamp(dot, -1f, 1f);
+        float angle = Mathf.Acos(dot) * Mathf.Rad2Deg;
+        Debug.Log($"Angle to target: {angle:F2}");
+    }
+}
+in player:
+add rangechecker
+drag "enemy" obj to target
+---------------------------------------------------------------------------------------
+PRACTICAL 8: AI VS PLAYER
+
+Create a 3D object > plane
+give color
+
+create 2 capsules > player & enemy
+create 1 cube > goal
+player:
+position: 1.67,1,-6.4
+scale: 0.41,0.5,0.05
+enemy:
+position: -7.36,1,0
+scale: -0.56, 0.85,1
+goal:
+position: 10,0.5,0
+scale: 3.09,4.08,4.81
+
+goal > add sphere collider > enable istrigger
+player > rigidbody
+freexe position of x,y,z
+enemy > nev mesh agent
+
+create empty obj > NevMesh
+add nav mesh surface > click bake
+
+create player script:
+using UnityEngine;
+public class player : MonoBehaviour
+{
+    public float speed = 5f;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void FixedUpdate()
+    {
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        Vector3 move = new Vector3(h, 0, v) * speed;
+        rb.linearVelocity = new Vector3(move.x, rb.linearVelocity.y, move.z);
+    }
+}
+drag & drop to player obj
+go to inspector > top right > tag: Player
+
+create enemy script:
+using UnityEngine.AI;
+using UnityEngine;
+public class enemy : MonoBehaviour
+{
+    public Transform target;
+    public float speed = 3.5f;
+    private NavMeshAgent agent;
+    void Start()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = speed;
+    }
+    void Update()
+    {
+        if(target != null)
+        {
+            agent.SetDestination(target.position);
+        }
+    }
+}
+attach script to enemy
+add goal to target 
+go to enemy inspector > top left 
+tag > dropdown 
+add > Enemy
+
+add script goal:
+using UnityEngine;
+public class goal : MonoBehaviour
+{
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Player"))
+        {
+            Debug.Log("Player win!");
+            Time.timeScale = 0f;
+        }
+        else if(other.CompareTag("Enemy"))
+        {
+            Debug.Log("Enemy wins!");
+            Time.timeScale = 0f;
+        }
+    }
+}
+attach script to goal
+
+create empty > gameManager
+create script > gameManager:
+using UnityEngine;
+
+public class gameManager : MonoBehaviour
+{
+    public GameObject player;
+    public GameObject enemy;
+    public GameObject goal;
+
+    void Update()
+    {
+        float playerDistance = Vector3.Distance(
+            player.transform.position,
+            goal.transform.position
+        );
+
+        float enemyDistance = Vector3.Distance(
+            enemy.transform.position,
+            goal.transform.position
+        );
+
+        Debug.Log(playerDistance);
+        Debug.Log(enemyDistance);
+
+        if (playerDistance < 1.0f)
+        {
+            Debug.Log("Player wins!");
+            QuitGame();
+        }
+        else if (enemyDistance < 2.1f)
+        {
+            Debug.Log("enemy wins!");
+            QuitGame();
+        }
+    }
+
+    void QuitGame()
+    {
+        Application.Quit();
+        UnityEditor.EditorApplication.isPlaying = false;
+    }
+}
+
+attach to gameManager 
+add player, enemy & goal in there > run
+
+AI CHASES PLAYER:
+copy everything from 8A
+delete goal
+
+add a script "player1":
+using UnityEngine;
+public class player1 : MonoBehaviour
+{
+    public float speed = 5f;
+    void Update()
+    {
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        Vector3 movement = new Vector3(h, 0, v);
+        transform.Translate(movement * speed * Time.deltaTime, Space.World);
+    }
+}
+add script to player
+
+add a script "ai_chase_player":
+using UnityEngine;
+using UnityEngine.AI;
+
+public class ai_chase_player : MonoBehaviour
+{
+    public Transform player;
+    public float detectionRange = 5.0f;
+    private NavMeshAgent agent;
+    void Start()
+    {
+        agent = GetComponent<NavMeshAgent>();
+    }
+    void Update()
+    {
+        if (player == null) return;
+
+        float distanceToPlayer = Vector3.Distance(
+            transform.position,
+            player.position
+        );
+        if (distanceToPlayer < detectionRange)
+        {
+            agent.SetDestination(player.position);
+            Debug.Log("AI is chasing the player");
+            if (distanceToPlayer < 1f)
+            {
+                Debug.Log("Enemy Wins!");
+                StopGame();
+            }
+        }
+        else
+        {
+            agent.ResetPath();
+        }
+    }
+    void StopGame()
+    {
+        Debug.Log("Game Over. The Enemy caught you.");
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+}
+
+add script to enemy
+add player1 as target
+click on bake > run
+-----------------------------------------------------------------------
+PRACTICAL 9: ANIMATIONS
+
+open maximo
+
+open project > drag & drop mutant to scene
+inspector > select > materials > import
+
+rename all maximo.com to run,breathe,walk
+
+create animator controller > animation
+add breathe, run, walk > interconnect then
+enable exit time for all
+
+go to breath(maximo) > edit
+enable loop time (same for run & walk)
+
+go to obj > add component > animator controller
+drop animator component to controller

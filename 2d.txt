@@ -1,0 +1,425 @@
+UNITY
+
+PRACTICAL 2: physical movement(movement, rotation, scaling)
+
+create 2d > square
+add rigidbody2D > gravity = 0
+
+script > movement:
+using UnityEngine;
+public class movement : MonoBehaviour
+{
+    public float speed = 5f;
+    private Rigidbody2D rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+    void Update()
+    {
+        float movex = Input.GetAxis("Horizontal");
+        float movey = Input.GetAxis("Vertical");
+        Vector2 movement = new Vector2(movex, movey);
+        rb.linearVelocity = movement * speed;
+    }
+}
+
+attach file to square > run
+
+
+rotation:
+using UnityEngine;
+public class rotation : MonoBehaviour
+{
+    public float speed = 100f;
+    private Rigidbody2D rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+    void Update()
+    {
+        float turn = Input.GetAxis("Horizontal");
+        rb.angularVelocity = -turn * speed;
+    }
+}
+
+attach this also to square > run
+
+scaling:
+using UnityEngine;
+
+public class scaling : MonoBehaviour
+{
+    public float speed = 5f;
+    void Update()
+    {
+        float change = Input.GetAxis("Vertical");
+        transform.localScale += Vector3.one * change * speed * Time.deltaTime;
+    }
+}
+
+attach this to square
+-------------------------------------------------------------------------------
+PRACTICAL 3: Jump & Surface Effector
+
+add square > add componeents:
+give rigidbody2D > keep gravity "1"
+bocCollider2D
+
+add Square for creating platform:
+add surface effector
+collider2D 
+
+add script > jump_move_color:
+using UnityEngine;
+
+public class jump_move_color : MonoBehaviour
+{
+    public float speed = 5f;
+    public float jumpForce = 10f;
+    public Color left = Color.red;
+    public Color right = Color.blue;
+    public Color idle = Color.white;
+    private Rigidbody2D rb;
+    private SpriteRenderer sr;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+    }
+    void Update()
+    {
+        float move = Input.GetAxis("Horizontal");
+        rb.linearVelocity = new Vector2(move*speed, rb.linearVelocity.y);
+        if(Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
+        if (move < 0)
+        {
+            sr.color = left;
+        }
+        else if(move > 0)
+        {
+        sr.color = right;
+        }
+        else
+        {
+            sr.color = idle;
+        }
+    }
+}
+add script to square > run
+---------------------------------------------------------------------------
+PRACTICAL 4: UI Interface implementation 
+
+BUTTON:
+right click > UI > add canvas
+under canvas > right click > UI > add button
+inside button > click text > change text
+
+add script > button:
+using UnityEngine;
+
+public class button : MonoBehaviour
+{
+    public void ClickButton(){
+        Debug.Log("Button clicked");
+    }
+}
+create empty object > buttonManager:
+attach script to buttonManager
+
+go to button > in inspector
+scroll down on Click():
+click on + > drag buttonManager
+add function > button() > ClickButton
+
+IMAGE:
+right click > UI > add image
+download image from google
+copy paste in assets folder
+go to image inspector 
+drag and drop on source image
+
+TOGGLE:
+right click > UI > add Toggle
+
+add a script > toggle:
+using UnityEngine;
+using UnityEngine.UI;
+
+public class toggle : MonoBehaviour
+{
+    public Toggle mytoggle;
+    void Start()
+    {
+        mytoggle.onValueChanged.AddListener(ToggleChanged);
+    }
+    void ToggleChanged(bool isOn)
+    {
+        if(isOn){
+            Debug.Log("on");
+        }
+        else{
+            Debug.Log("off");
+        }
+    }
+}
+
+create empty object > toggleManager
+attach script to toggleManager
+drag and drop toggle object in toggleManager
+
+SLIDER:
+right click > UI > add slider
+in spector:
+min = 0
+max = 100
+value = 50
+
+add a script > slideController
+add game object > toggleManager
+attach sript to toggleManager
+attach toggle object inside toggleManager
+run the project
+---------------------------------------------------------------------
+PRACTICAL 5: Effectors & Sounds
+
+PLATFORM EFFECTOR:
+create 2d > square > rename "platform"
+add plaform effector 
+add box collider 2D > click on Used by effector
+
+create 2d > square > rename "player"
+add component:
+add rigidbody2d > gravity = 2, linear damping = 1
+boxcollider2d
+
+AREA:
+
+create 2d > square > rename "platform"
+add plaform effector 
+add box collider 2D > click on Used by effector 
+
+create 2d > square > rename "player"
+add component:
+add rigidbody2d > gravity = 2, linear damping = 1
+boxcollider2d
+keep it close to the wind object
+
+create 2d > square > rename "wind" > make it tall
+add box collider 2D > click on isTrigger & istrigger
+area effector 2d:
+Force Angle = 180 (left direction)
+Force Magnitude = 100
+ENABLE Use Global Angle
+
+add a script > "player":
+using UnityEngine;
+
+public class scaling : MonoBehaviour
+{
+    public float moveForce = 30f;
+    public float maxSpeed = 5f;
+    private Rigidbody2D rb;
+    private Vector2 input;
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+    void Update()
+    {
+        input.x = Input.GetAxisRaw("Horizontal");
+        input.y = Input.GetAxisRaw("Vertical");
+        input = input.normalized;
+    }
+    void FixedUpdate()
+    {
+        rb.AddForce(input * moveForce);
+        rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity,maxSpeed);
+    }
+}
+
+attach to the player object
+
+BUOYANCY:
+create 2d > square > rename "water"
+add buoynacy effector:
+Surface Level = 0.5
+Density = 30
+Linear Drag = 3
+Angular Drag = 1
+Flow Angle = 0
+Flow Magnitude = 0
+add box collider 2D > click on Used by effector & trigger
+
+create 2d > square > rename "player"
+add component:
+add rigidbody2d > gravity = 2, linear damping = 1
+boxcollider2d
+keep it close above water 
+
+SOND:
+audio> audio source
+download audio from goggle paste in assets
+drag and drop to audio inspector > run
+-------------------------------------------------------------------------------------
+PRACTICAL – 6: SCENE MANAGEMENT
+
+LOAD & UNLOAD:
+save scene as "MainMenu"
+create new scene > name "GameScene"
+
+GO TO FILE > BUILD PROFILES
+OPEN SCENE LIST > ADD SCENE
+GAME SCENE WILL BE ADDED BELOW MENU SCENE
+
+IN MAINMAIN:
+go to UI > add a canvas
+inside canvas > add button-text mesh pro
+rename button to "PlayButton"
+rename text to "Start Game"
+
+add script "SceneLoader"
+
+add script SceneLoader:
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+public class SceneLoader : MonoBehaviour
+{
+    public void LoadGameScene()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+}
+
+IN MainMenu
+create empty object > LoadScene
+add "SceneLoader" script in that
+
+go to button inspector:
+In onCLick() function click +
+Drag SceneLoader
+Go to dragdown "SceneLoader" > click LoadGameScene()
+
+IN GameScene scene:
+inside canvas > add button-text mesh pro
+rename button to "BackButton"
+rename text to "Back to Menu"
+
+create empty object > UnloadScene
+add "SceneLoader" script in that
+go to button inspector:
+In onCLick() function click +
+Drag UnloadManager
+Go to dragdown "SceneLoader" > click LoadMainMenu()
+
+
+ADDITIVE:
+add a new scene "Additive"
+go to build profile > add scene list
+
+go to "GameScene" scene:
+add button > rename "LoadAdditiveButton"
+rename text > "Load Extra Scene"
+
+add scipt "AdditiveLoader": 
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class AdditiveLoader : MonoBehaviour
+{
+    public void LoadAdditiveScene()
+    {
+        SceneManager.LoadScene("Additive", LoadSceneMode.Additive);
+    }
+}
+
+create empty object > AdditiveLoader
+add "AdditiveLoader" script in that
+go to button inspector:
+In onCLick() function click +
+Drag Additiveloader
+Go to dragdown "AdditiveLoader" > click LoadAdditiveScene()
+go to main camera > disable audio listener
+go to event manager > diable event manager
+
+go to "Additive" scene again:
+create a 2D shape > circle outside canvas
+color: pink
+positions:0,0,0
+
+ASNCHRONOUS LOADING:
+create a new scene "LoadingScene"
+UI > Text - text mesh pro
+rename > "loading"
+go to build profile > add scene list
+
+create a script(AsyncSceneLoader):
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+
+public class AsyncSceneLoader : MonoBehaviour
+{
+    void Start()
+    {
+        StartCoroutine(LoadSceneAsync());
+    }
+    IEnumerator LoadSceneAsync()
+    {
+        yield return new WaitForSeconds(1f);
+        AsyncOperation operation =
+        SceneManager.LoadSceneAsync("GameScene");
+        while (!operation.isDone)
+        {
+            Debug.Log("Loading: " + operation.progress);
+            yield return null;
+        }
+    }
+}
+
+In your "MainMenu" scene, change the button code to load LoadingScene:
+public void LoadGameScene()
+    {
+        SceneManager.LoadScene("LoadingScene");
+    }
+
+run from MainMenu
+
+UNLOADING THE SCENE:
+
+go to "GAMESCENE" SCENE
+UI> add a button > "UnloadSceneButton"
+rename text 
+create a script first "SceneUnloader':
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class SceneUnloader : MonoBehaviour
+{
+    public void UnloadAdditiveScene()
+    {
+        Debug.Log("Unload button clicked");
+
+        if (SceneManager.GetSceneByName("Additive").isLoaded)
+        {
+            SceneManager.UnloadSceneAsync("Additive");
+        }
+    }
+}
+create empty object > unload 
+attach SceneUnloader to unload
+go to button > onclick
+drag & drop sceneUnloader > add function
+
