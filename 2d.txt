@@ -179,10 +179,24 @@ min = 0
 max = 100
 value = 50
 
-add a script > slideController
-add game object > toggleManager
-attach sript to toggleManager
-attach toggle object inside toggleManager
+add a script > slideController:
+using UnityEngine;
+using UnityEngine.UI;
+public class MySlider : MonoBehaviour
+{
+public Slider mySlider;
+void Start()
+{
+mySlider.onValueChanged.AddListener(OnSliderValueChanged);
+}
+void OnSliderValueChanged(float value)
+{
+Debug.Log("Slider Value: " + value);
+}
+}
+add game object > Slider Manager
+attach sript to sldierManager
+attach slider object inside slidermanager
 run the project
 ---------------------------------------------------------------------
 PRACTICAL 5: Effectors & Sounds
