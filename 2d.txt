@@ -422,4 +422,54 @@ create empty object > unload
 attach SceneUnloader to unload
 go to button > onclick
 drag & drop sceneUnloader > add function
+---------------------------------------------------------------------
+PRACTICAL 1
 
+switch case:
+void Start()
+    {
+        string grade ="A";
+        switch(grade){
+        case "A":
+            Debug.Log("Marks between 80-100");
+        break;
+
+        case "B":
+            Debug.Log("Marks between 50-80");
+        break;
+        
+        case "C":
+            Debug.Log("Marks between 30-50");
+        break;
+        }
+    }
+
+attach to gameObject > run
+
+sum of  numbers:
+void Start()
+{
+int n=5;
+int sum = 0;
+for (int i=0; i<=n; i++){
+sum +=i;
+}
+Debug.Log(sum);
+
+}
+
+using while loop sum of all even numbers in a given range:
+void Start()
+{
+int i = 1; 
+int sum = 0;
+while (i <= 20)
+{
+if (i % 2 == 0)
+{
+sum += i;
+}
+i++;
+}
+Debug.Log("Sum = " + sum);
+}
